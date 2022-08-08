@@ -1,0 +1,35 @@
+Metadata-Version: 2.1
+Name: hostz
+Version: 0.1
+Summary: Easy use for operate remote host via ssh
+Home-page: https://github.com/hanzhichao/hostz
+Author: Han Zhichao
+Author-email: superhin@126.com
+License: MIT license
+Keywords: hostz,ssh,sftp,ssh client
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3.7
+Description-Content-Type: text/markdown
+License-File: LICENSE
+
+# hostz
+
+Easy use for operate remote host via ssh
+
+## Feature
+
+## Install
+```
+pip install hostz
+```
+
+## Simple Use
+
+```
+from hostz import Host
+host = Host('192.168.1.184', password='***', workspace='/tmp/')
+print(host.execute('echo hello'))
+```
+
+## Todo
+
