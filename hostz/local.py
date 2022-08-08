@@ -2,11 +2,13 @@ import os
 import platform
 import subprocess
 
-from hostz.docker import DockerMixIn
-from hostz.git import GitMixIn
+from hostz._docker import _Docker
+from hostz._git import _Git
+from hostz._go import _Go
+from hostz._sed import _Sed
 
 
-class Local(GitMixIn, DockerMixIn):
+class Local(_Git, _Go, _Sed, _Docker):
     def __init__(self, workspace=None, **kwargs):
         self.workspace = self.workspace = workspace
         self.host = 'localhost'
@@ -16,9 +18,8 @@ class Local(GitMixIn, DockerMixIn):
                 self.mkdirs(self.workspace)
             os.chdir(self.workspace)
 
-
     def check_process(self, keyword):
-        result = self.run(f'pgrep {keyword}')
+        result = self.execute(f'pgrep {keyword}')
         return True if result else False
 
     def exists(self, path):
