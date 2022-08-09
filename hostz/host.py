@@ -1,5 +1,6 @@
 import logging
 import os
+import stat
 
 import paramiko
 
@@ -97,9 +98,32 @@ class Host(_Git, _Go, _Sed, _Docker):
         self.sftp.get(remote_file, local_file)
         return os.path.exists(local_file)
 
+    def get_dir_by_zip(self, remote_dir, local_dir):
+        remote_dir_parent, remote_dir_base = os.path.dirname(remote_dir), os.path.basename(remote_dir)
+        local_dir_parent, local_dir_base = os.path.dirname(local_dir), os.path.basename(local_dir)
 
-    def get_dir(self, remote_dir, local_dir):  # TODO ZIP压缩后下载
+        # 服务端压缩文件
+        zip_file = '%s.zip' % remote_dir_base
+        cmd = f"cd {remote_dir_parent} && zip -r {zip_file} {remote_dir_base}/*"
+        result = self.run(cmd)
+        # 下载压缩文件
+        remote_file = '%s.zip' % remote_dir
+        local_file = '%s.zip' % local_dir
+        self.get(remote_file, local_file)
+
+        # 删除服务端压缩文件
+        self.run('rm -f %s' % remote_file)
+
+        # 解压本地压缩文件
+        os.system(f'cd {local_dir_parent} && unzip {zip_file} && cd -')
+
+        # 删除本地压缩文件
+        os.system(f'rm -rf {local_file}')
+
+    def get_dir(self, remote_dir, local_dir, zip=True):
         self.logger.debug('下载目录', self.host, remote_dir)
+        if zip is True:
+            return self.get_dir_by_zip(remote_dir, local_dir)
         if not remote_dir.startswith('/'):
             remote_dir = f'{self.sftp.getcwd()}/{remote_dir}'
 
@@ -110,14 +134,14 @@ class Host(_Git, _Go, _Sed, _Docker):
             remote_path = os.path.join(remote_dir, file)
             if self.is_dir(remote_path):
                 if not os.path.exists(local_path):
-                    # print('下载到', local_path)
+                    # self.logger.debug('下载到', local_path)
                     os.makedirs(local_path)
                 self.get_dir(remote_path, local_path)
             else:  # 文件
                 self.get(remote_path, local_path)
 
     def is_dir(self, remote_path):
-        return os.stat.S_ISDIR(self.sftp.stat(remote_path).st_mode)
+        return stat.S_ISDIR(self.sftp.stat(remote_path).st_mode)
 
     def check_port(self, port):
         """检查端口号"""
