@@ -1,5 +1,6 @@
 import logging
 
+
 class BaseShell:
     host: str
     workspace: str
@@ -9,7 +10,7 @@ class BaseShell:
         self.logger.info('[%s] %s' % (self.host, message))
 
     def debug(self, message: str):
-        self.debug('[%s] %s' % (self.host, message))
+        self.logger.debug('[%s] %s' % (self.host, message))
 
     def execute(self, cmd: str) -> str:
         pass

@@ -1,4 +1,4 @@
-from hostz.base_shell import BaseShell
+from hostz._base_shell import BaseShell
 
 
 class _Docker(BaseShell):
