@@ -4,11 +4,11 @@ README.md
 requirements.txt
 setup.py
 hostz/__init__.py
+hostz/_base_shell.py
 hostz/_docker.py
 hostz/_git.py
 hostz/_go.py
 hostz/_sed.py
-hostz/base_shell.py
 hostz/host.py
 hostz/local.py
 hostz.egg-info/PKG-INFO
