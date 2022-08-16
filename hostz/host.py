@@ -1,6 +1,7 @@
 import logging
 import os
 import stat
+from typing import Union
 
 import paramiko
 
@@ -57,6 +58,12 @@ class Host(_Git, _Go, _Sed, _Docker):
 
     def run(self, cmd: str, input: str = None):
         return self.execute(cmd)
+
+    def read(self, path):
+        return self.execute('cat %s' % path)
+
+    def save(self, data, path):
+        return self.execute("echo '%s' > %s" % (data, path))
 
     def tail(self, file_path: str, keyword=None):
         cmd = f'tail -f {file_path}' if keyword is None else f'tail -f {file_path} | grep {keyword}'

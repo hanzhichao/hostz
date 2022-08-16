@@ -17,3 +17,9 @@ class BaseShell:
 
     def exists(self, path) -> bool:
         pass
+
+    def read(self, path)->str:
+        pass
+
+    def save(self, data: str, path: str):
+        pass
