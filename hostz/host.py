@@ -1,8 +1,11 @@
 import logging
 import os
 import stat
+import time
+from threading import Thread
 
 import paramiko
+from paramiko_expect import SSHClientInteraction
 
 from hostz._docker import _Docker
 from hostz._git import _Git
@@ -22,6 +25,7 @@ class Host(_Git, _Go, _Sed, _Docker, _Yaml):
         self.logger = logging.getLogger(__name__)
         self._ssh = None
         self._sftp = None
+        self._interact = None
 
     @classmethod
     def from_str(cls, host: str):
@@ -45,6 +49,14 @@ class Host(_Git, _Go, _Sed, _Docker, _Yaml):
             self._sftp = self.ssh.open_sftp()
         return self._sftp
 
+    @property
+    def interact(self) -> SSHClientInteraction:
+        if self._interact is None:
+            self._interact = SSHClientInteraction(self.ssh, timeout=10, display=False)
+            prompt = r'.*root@.*'
+            self._interact.expect(prompt)
+        return self._interact
+
     def execute(self, cmd: str, workspace=None, timeout=60):
         workspace = workspace or self.workspace
         if workspace:
@@ -65,17 +77,24 @@ class Host(_Git, _Go, _Sed, _Docker, _Yaml):
     def run(self, cmd: str, input: str = None):
         return self.execute(cmd)
 
-    def read(self, path):
-        return self.execute('cat %s' % path)
-
     def save(self, data, path):
         return self.execute("echo '%s' > %s" % (data, path))
 
-    def tail(self, file_path: str, keyword=None):
-        cmd = f'tail -f {file_path}' if keyword is None else f'tail -f {file_path} | grep {keyword}'
-        stdin, stdout, stderr = self.ssh.exec_command(cmd, timeout=20 * 60)
-        for line in stdout.readlines():
-            print(line.decode('utf-8'))
+    def tail(self, file_path: str, keyword=None, timeout=None):
+        self._stop_tail = False
+        if keyword is None:
+            cmd = f'{file_path}'
+        else:
+            cmd = f'{file_path} | grep {keyword}'
+
+        self.interact.send(cmd)
+        stop_callback = lambda x: True if self._stop_tail else False
+        t = Thread(target=self.interact.tail, kwargs=dict(stop_callback=stop_callback, timeout=timeout))
+        t.start()
+
+    def stop_tail(self):
+        """停止tail"""
+        self._stop_tail = True
 
     def read(self, file_path):
         """读取文件内容"""
@@ -151,7 +170,7 @@ class Host(_Git, _Go, _Sed, _Docker, _Yaml):
             remote_path = os.path.join(remote_dir, file)
             if self.is_dir(remote_path):
                 if not os.path.exists(local_path):
-                    # self.logger.debug('下载到', local_path)
+                    # self._logger.debug('下载到', local_path)
                     os.makedirs(local_path)
                 self.get_dir(remote_path, local_path)
             else:  # 文件

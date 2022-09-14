@@ -4,13 +4,14 @@ from logz import log
 class BaseShell:
     host: str
     workspace: str
-    logger = log
+    _logger = log
+    _stop_tail = None
 
     def info(self, message: str):
-        self.logger.info('[%s] %s' % (self.host, message))
+        self._logger.info('[%s] %s' % (self.host, message))
 
     def debug(self, message: str):
-        self.logger.debug('[%s] %s' % (self.host, message))
+        self._logger.debug('[%s] %s' % (self.host, message))
 
     def execute(self, cmd: str, workspace: str=None) -> str:
         pass
