@@ -1,10 +1,10 @@
-import logging
+from logz import log
 
 
 class BaseShell:
     host: str
     workspace: str
-    logger = logging.getLogger(__name__)
+    logger = log
 
     def info(self, message: str):
         self.logger.info('[%s] %s' % (self.host, message))

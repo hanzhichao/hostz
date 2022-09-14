@@ -34,5 +34,5 @@ setup(
     url='https://github.com/hanzhichao/hostz',
     version=0.07,
     zip_safe=True,
-    install_requires=['paramiko']
+    install_requires=['paramiko', 'logz']
 )
