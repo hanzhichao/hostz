@@ -12,7 +12,7 @@ class BaseShell:
     def debug(self, message: str):
         self.logger.debug('[%s] %s' % (self.host, message))
 
-    def execute(self, cmd: str) -> str:
+    def execute(self, cmd: str, workspace: str=None) -> str:
         pass
 
     def exists(self, path) -> bool:

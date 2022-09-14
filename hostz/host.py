@@ -1,18 +1,17 @@
 import logging
 import os
 import stat
-from typing import Union
 
 import paramiko
-
 
 from hostz._docker import _Docker
 from hostz._git import _Git
 from hostz._go import _Go
 from hostz._sed import _Sed
+from hostz._yaml import _Yaml
 
 
-class Host(_Git, _Go, _Sed, _Docker):
+class Host(_Git, _Go, _Sed, _Docker, _Yaml):
     def __init__(self, host, port=22, user='root', password='passw0rd', workspace=None):
         self.host = host
         self.port = port
@@ -23,6 +22,13 @@ class Host(_Git, _Go, _Sed, _Docker):
         self.logger = logging.getLogger(__name__)
         self._ssh = None
         self._sftp = None
+
+    @classmethod
+    def from_str(cls, host: str):
+        _user_part, _host_part = host.split('@')
+        _user, _password = _user_part.split(':')
+        _host, _port, _workspace = _host_part.split(':')
+        return cls(host=_host, port=int(_port), user=_user, password=_password, workspace=_workspace)
 
     @property
     def ssh(self) -> paramiko.SSHClient:
@@ -74,6 +80,10 @@ class Host(_Git, _Go, _Sed, _Docker):
     def read(self, file_path):
         """读取文件内容"""
         return self.execute(f'cat {file_path}')
+
+    def read_multi(self, *file_path, workspace=None) -> list:
+        cmd = 'cat %s' % " <(echo '|') ".join(file_path)
+        return self.execute(cmd, workspace=workspace).split('|')
 
     def listdir(self, path):
         return self.sftp.listdir(path)
@@ -172,6 +182,9 @@ class Host(_Git, _Go, _Sed, _Docker):
         """根据关键字杀死进程"""
         return self.execute(f'if [ `pgrep {keyword} | wc -l` -ne 0 ]; then pgrep {keyword}] | xargs kill -9; fi')
 
+    def kill_by_pid(self, pid: int):
+        return self.execute('kill -9 %s' % pid)
+
     def grep(self):
         pass
 
@@ -183,3 +196,8 @@ class Host(_Git, _Go, _Sed, _Docker):
     def untar(self, tar_file, output):
         """tar解压缩"""
         return self.execute(f'tar -zxvf {tar_file} -C {output}')
+
+    def get_pid_by_port(self, port: int) -> int:  # fixme 查询端口不止一个结果
+        cmd = "lsof -i:%s | tail -1 | awk '{print $2}'" % port
+        result = self.execute(cmd)
+        return int(result)

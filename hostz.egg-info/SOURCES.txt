@@ -9,6 +9,7 @@ hostz/_docker.py
 hostz/_git.py
 hostz/_go.py
 hostz/_sed.py
+hostz/_yaml.py
 hostz/host.py
 hostz/local.py
 hostz.egg-info/PKG-INFO
