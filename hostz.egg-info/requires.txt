@@ -1,1 +1,3 @@
 paramiko
+paramiko-expect
+logz

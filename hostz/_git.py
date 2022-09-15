@@ -1,9 +1,16 @@
-import os
-
 from hostz._base_shell import BaseShell
 
 
 class _Git(BaseShell):
+    def git_clone(self, repo_addr, branch: str = None, workspace=None):
+        """克隆项目"""
+        if branch is None:
+            cmd = f'git clone --recursive {repo_addr}'
+        else:
+            self.debug(f'git clone -b {branch} {repo_addr}')
+            cmd = f'git clone --recursive -b {branch} {repo_addr}'
+        return self.execute(cmd, workspace=workspace)
+
     def git_pull(self, branch=None, reset=True, workspace=None):
         """调用git pull更新代码"""
         cmd = 'git pull'
@@ -38,7 +45,7 @@ class _Git(BaseShell):
             result = self.git_pull(branch, workspace=workspace)
             return result
 
-    def git_stat_commit_lines(self, since: str = '2017-01-01', workspace=None):   # todo fixme
+    def git_stat_commit_lines(self, since: str = '2017-01-01', workspace=None):  # todo fixme
         """按用户统计提交行数"""
         cmd = f'''git log --format='%aN' | sort -u | while read name; do echo -en "$name\\t"; git log --author="$name" \
 --since='{since}' --pretty=tformat: --numstat | awk '{{ add += $1; subs += $2; loc += $1 - $2 }} \

@@ -6,7 +6,7 @@ from threading import Thread
 
 import paramiko
 from paramiko_expect import SSHClientInteraction
-
+from logz import log
 from hostz._docker import _Docker
 from hostz._git import _Git
 from hostz._go import _Go
@@ -15,14 +15,15 @@ from hostz._yaml import _Yaml
 
 
 class Host(_Git, _Go, _Sed, _Docker, _Yaml):
-    def __init__(self, host, port=22, user='root', password='passw0rd', workspace=None):
+    def __init__(self, host, port=22, user='root', password='passw0rd', timeout=600, workspace=None):
         self.host = host
         self.port = port
         self.user = user
         self.password = password
+        self.timeout = timeout
         self.workspace = workspace
 
-        self.logger = logging.getLogger(__name__)
+        self.logger = log
         self._ssh = None
         self._sftp = None
         self._interact = None
@@ -39,8 +40,9 @@ class Host(_Git, _Go, _Sed, _Docker, _Yaml):
         if self._ssh is None:
             self._ssh = paramiko.SSHClient()
             self._ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            self.debug('建立[%s]ssh连接' % self.host)
-            self._ssh.connect(hostname=self.host, port=self.port, username=self.user, password=self.password)
+            self.debug('connect ssh' % self.host)
+            self._ssh.connect(hostname=self.host, port=self.port, username=self.user, password=self.password,
+                              timeout=self.timeout)
         return self._ssh
 
     @property
@@ -57,7 +59,9 @@ class Host(_Git, _Go, _Sed, _Docker, _Yaml):
             self._interact.expect(prompt)
         return self._interact
 
-    def execute(self, cmd: str, workspace=None, timeout=60):
+    def execute(self, cmd: str, workspace=None, timeout:int=None):
+        if timeout is None:
+            timeout = self.timeout
         workspace = workspace or self.workspace
         if workspace:
             cmd = 'cd %s && %s' % (workspace, cmd)
@@ -71,7 +75,7 @@ class Host(_Git, _Go, _Sed, _Docker, _Yaml):
 
     def close(self):
         if self._ssh:
-            self.debug('关闭[%s]ssh连接' % self.host)
+            self.debug('close ssh connection' % self.host)
             self._ssh.close()
 
     def run(self, cmd: str, input: str = None):
