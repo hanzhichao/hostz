@@ -40,7 +40,7 @@ class Host(_Git, _Go, _Sed, _Docker, _Yaml):
         if self._ssh is None:
             self._ssh = paramiko.SSHClient()
             self._ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            self.debug('connect ssh' % self.host)
+            self.debug('connect ssh')
             self._ssh.connect(hostname=self.host, port=self.port, username=self.user, password=self.password,
                               timeout=self.timeout)
         return self._ssh
@@ -75,7 +75,7 @@ class Host(_Git, _Go, _Sed, _Docker, _Yaml):
 
     def close(self):
         if self._ssh:
-            self.debug('close ssh connection' % self.host)
+            self.debug('close ssh connection')
             self._ssh.close()
 
     def run(self, cmd: str, input: str = None):
@@ -120,12 +120,12 @@ class Host(_Git, _Go, _Sed, _Docker, _Yaml):
         return True
 
     def count_process(self, keyword):
-        result = self.execute(f'pgrep {keyword} | wc -l')
+        result = self.execute(f"pgrep '{keyword}' | wc -l")
         return int(result.strip(' '))
 
     def check_process(self, keyword) -> bool:
         """检查进程"""
-        result = self.execute(f'pgrep {keyword}')
+        result = self.execute(f"pgrep '{keyword}'")
         return True if result else False
 
     def put(self, local_file, remote_file):
