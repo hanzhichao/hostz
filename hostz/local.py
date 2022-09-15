@@ -31,22 +31,18 @@ class Local(_Git, _Go, _Sed, _Docker):
     def mkdirs(self, path):
         os.makedirs(path)
 
-    def execute(self, cmd: str, workspace=None):
+    def execute(self, cmd: str, input: str = None, workspace=None):
+        self.debug(cmd)
         workspace = workspace or self.workspace
         if workspace:
             cmd = 'cd %s && %s' % (workspace, cmd)
-        p = subprocess.run(cmd, stdout=subprocess.PIPE, shell=True)
-        result = p.stdout.decode('utf-8').strip()
-        return result
-
-    def run(self, cmd, input=None):
-        # print(f' [{self.host}]执行命令：%s' % cmd)
         if input is None:
             p = subprocess.run(cmd, stdout=subprocess.PIPE, shell=True)
-        elif isinstance(input, str):
-            p = subprocess.run(cmd, stdout=subprocess.PIPE, input=input.encode(), shell=True)
         else:
-            raise TypeError('input must be str')
+            p = subprocess.run(cmd, stdout=subprocess.PIPE, input=input.encode(), shell=True)
         result = p.stdout.decode('utf-8').strip()
-        # print(f' [{self.host}]执行结果：%s' % result)
+        self.debug(result)
         return result
+
+    def run(self, cmd, input: str = None, workspace=None):
+        return self.execute(cmd, input, workspace)

@@ -203,7 +203,7 @@ class Host(_Git, _Go, _Sed, _Docker, _Yaml):
 
     def kill(self, keyword):
         """根据关键字杀死进程"""
-        return self.execute(f'if [ `pgrep {keyword} | wc -l` -ne 0 ]; then pgrep {keyword}] | xargs kill -9; fi')
+        return self.execute(f'if [ `pgrep {keyword} | wc -l` -ne 0 ]; then pgrep {keyword} | xargs kill -9; fi')
 
     def kill_by_pid(self, pid: int):
         return self.execute('kill -9 %s' % pid)
