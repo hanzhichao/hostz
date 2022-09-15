@@ -87,9 +87,9 @@ class Host(_Git, _Go, _Sed, _Docker, _Yaml):
     def tail(self, file_path: str, keyword=None, timeout=None):
         self._stop_tail = False
         if keyword is None:
-            cmd = f'{file_path}'
+            cmd = f'tail -f {file_path}'
         else:
-            cmd = f'{file_path} | grep {keyword}'
+            cmd = f'tail -f {file_path} | grep {keyword}'
 
         self.interact.send(cmd)
         stop_callback = lambda x: True if self._stop_tail else False
