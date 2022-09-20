@@ -1,12 +1,11 @@
-import logging
 import os
 import stat
-import time
 from threading import Thread
 
 import paramiko
-from paramiko_expect import SSHClientInteraction
 from logz import log
+from paramiko_expect import SSHClientInteraction
+
 from hostz._docker import _Docker
 from hostz._git import _Git
 from hostz._go import _Go
@@ -59,18 +58,17 @@ class Host(_Git, _Go, _Sed, _Docker, _Yaml):
             self._interact.expect(prompt)
         return self._interact
 
-    def execute(self, cmd: str, workspace=None, timeout:int=None):
+    def execute(self, cmd: str, workspace=None, timeout: int = None):
+        """不带日志输出执行"""
         if timeout is None:
             timeout = self.timeout
         workspace = workspace or self.workspace
         if workspace:
             cmd = 'cd %s && %s' % (workspace, cmd)
-        self.debug(cmd)
         stdin, stdout, stderr = self.ssh.exec_command(cmd, timeout=timeout)
 
         result = stderr.read().decode('utf-8') or stdout.read().decode('utf-8').strip(' \n')
-        if result:
-            self.debug(result)
+
         return result
 
     def close(self):
@@ -78,8 +76,13 @@ class Host(_Git, _Go, _Sed, _Docker, _Yaml):
             self.debug('close ssh connection')
             self._ssh.close()
 
-    def run(self, cmd: str, input: str = None):
-        return self.execute(cmd)
+    def run(self, cmd: str, workspace=None, timeout: int = None):
+        """带日志执行"""
+        self.debug(cmd)
+        result = self.execute(cmd, workspace, timeout)
+        if result:
+            self.debug(result)
+        return result
 
     def save(self, data, path):
         return self.execute("echo '%s' > %s" % (data, path))
@@ -208,8 +211,8 @@ class Host(_Git, _Go, _Sed, _Docker, _Yaml):
     def kill_by_pid(self, pid: int):
         return self.execute('kill -9 %s' % pid)
 
-    def grep(self):
-        pass
+    def grep(self, keyword, file_path):
+        return self.execute(f'grep "{keyword}" {file_path}')
 
     def tar(self, path, output=None):
         """tar压缩"""
