@@ -78,7 +78,10 @@ class Host(_Git, _Go, _Sed, _Docker, _Yaml):
 
     def run(self, cmd: str, workspace=None, timeout: int = None):
         """带日志执行"""
-        self.debug(cmd)
+        if workspace is not None:
+            self.debug(f"cd {workspace} && {cmd}")
+        else:
+            self.debug(cmd)
         result = self.execute(cmd, workspace, timeout)
         if result:
             self.debug(result)
