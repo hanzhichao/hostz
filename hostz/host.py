@@ -90,12 +90,14 @@ class Host(_Git, _Go, _Sed, _Docker, _Yaml):
     def save(self, data, path):
         return self.execute("echo '%s' > %s" % (data, path))
 
-    def tail(self, file_path: str, keyword=None, timeout=None):
+    def tail(self, file_path: str, *keywords, timeout=None):
         self._stop_tail = False
-        if keyword is None:
+        if not keywords:
             cmd = f'tail -f {file_path}'
         else:
-            cmd = f'tail -f {file_path} | grep {keyword}'
+            keyword = '\|'.join(keywords)
+            cmd = f'tail -f {file_path} | grep "{keyword}"'
+            print('cmd', cmd)
 
         self.interact.send(cmd)
         stop_callback = lambda x: True if self._stop_tail else False

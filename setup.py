@@ -32,7 +32,7 @@ setup(
     packages=find_packages(include=['hostz']),
     setup_requires=setup_requirements,
     url='https://github.com/hanzhichao/hostz',
-    version=0.11,
+    version=0.12,
     zip_safe=True,
     install_requires=['paramiko', 'paramiko-expect', 'logz']
 )
