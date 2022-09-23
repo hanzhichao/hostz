@@ -15,14 +15,14 @@ class _Git(BaseShell):
         """调用git pull更新代码"""
         cmd = 'git pull'
         if branch is not None:
-            cmd = f'git checkout {branch} && {cmd}'
+            cmd = f'git fetch && git checkout {branch} && {cmd}'
         if reset is True:
-            cmd = f'git reset --hard && {cmd}'
+            cmd = f'git stash && {cmd}'
         return self.execute(cmd, workspace=workspace)
 
     def git_checkout(self, branch, workspace=None):
         """调用git checkout 更新分支"""
-        return self.execute(f'git stash && git checkout {branch} && git pull', workspace=workspace)
+        return self.execute(f'git stash && git fetch && git checkout {branch}', workspace=workspace)
 
     def get_commit_id(self, short=False, workspace=None):
         """获取当前commit_id"""
