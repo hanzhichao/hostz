@@ -53,7 +53,8 @@ class Local(_Git, _Go, _Sed, _Docker):
 
     def load_yaml(self, path: str):
         import yaml
-        return yaml.safe_load(path)
+        with open(path) as f:
+            return yaml.safe_load(f)
 
     def save_yaml(self, data: Union[dict, list], path: str):
         import yaml
