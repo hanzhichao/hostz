@@ -1,6 +1,7 @@
 import os
 import platform
 import subprocess
+from typing import Union
 
 from hostz._docker import _Docker
 from hostz._git import _Git
@@ -46,3 +47,16 @@ class Local(_Git, _Go, _Sed, _Docker):
 
     def run(self, cmd, input: str = None, workspace=None):
         return self.execute(cmd, input, workspace)
+
+    def listdir(self, path: str):
+        return os.listdir(path)
+
+    def load_yaml(self, path: str):
+        import yaml
+        return yaml.safe_load(path)
+
+    def save_yaml(self, data: Union[dict, list], path: str):
+        import yaml
+        with open(path, 'w') as f:
+            yaml.safe_dump(f, data)
+
