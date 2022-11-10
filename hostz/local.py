@@ -59,5 +59,5 @@ class Local(_Git, _Go, _Sed, _Docker):
     def save_yaml(self, data: Union[dict, list], path: str):
         import yaml
         with open(path, 'w') as f:
-            yaml.safe_dump(f, data)
+            yaml.safe_dump(data, f)
 
