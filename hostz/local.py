@@ -61,3 +61,6 @@ class Local(_Git, _Go, _Sed, _Docker):
         with open(path, 'w') as f:
             yaml.safe_dump(data, f)
 
+    def read(self, path) ->str:
+        with open(path) as f:
+            return f.read()
