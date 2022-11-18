@@ -88,7 +88,10 @@ class Host(_Git, _Go, _Sed, _Docker, _Yaml):
         return result
 
     def save(self, data, path):
-        return self.execute("echo '%s' > %s" % (data, path))
+        # return self.execute("echo '%s' > %s" % (data, path))
+        file = self.sftp.file(path, "w", -1)
+        file.write(data)
+        file.flush()
 
     def tail(self, file_path: str, *keywords, timeout=None):
         self._stop_tail = False

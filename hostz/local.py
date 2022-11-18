@@ -64,3 +64,10 @@ class Local(_Git, _Go, _Sed, _Docker):
     def read(self, path) ->str:
         with open(path) as f:
             return f.read()
+
+    def count_process(self, keyword: str):
+        result = self.execute(f"pgrep '{keyword}' | wc -l")
+        return int(result.strip(' '))
+
+    def kill(self, keyword):
+        return self.execute(f'if [ `pgrep {keyword} | wc -l` -ne 0 ]; then pgrep {keyword} | xargs kill -9; fi')
