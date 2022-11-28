@@ -231,7 +231,7 @@ class Host(_Git, _Go, _Sed, _Docker, _Yaml):
         """tar解压缩"""
         return self.execute(f'tar -zxvf {tar_file} -C {output}')
 
-    def get_pid_by_port(self, port: int) -> int:  # fixme 查询端口不止一个结果
-        cmd = "lsof -i:%s | tail -1 | awk '{print $2}'" % port
+    def get_pid_by_port(self, port: int) -> int:
+        cmd = "lsof -n -i :%s | grep LISTEN | awk '{print $2}'" % port
         result = self.execute(cmd)
-        return int(result)
+        return int(result) if result else None
