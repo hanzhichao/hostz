@@ -1,3 +1,0 @@
-paramiko
-paramiko-expect
-logz
