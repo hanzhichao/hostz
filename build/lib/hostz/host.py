@@ -1,6 +1,7 @@
 import os
 import re
 import stat
+import zipfile
 from threading import Thread
 
 import paramiko
@@ -184,7 +185,8 @@ class Host(_Git, _Go, _Sed, _Docker, _Yaml, _Zip):
     def get_dir_by_zip(self, remote_dir, local_dir):
         remote_dir_parent, remote_dir_base = os.path.dirname(remote_dir), os.path.basename(remote_dir)
         local_dir_parent, local_dir_base = os.path.dirname(local_dir), os.path.basename(local_dir)
-
+        if not os.path.exists(local_dir_parent):
+            os.makedirs(local_dir_parent)
         # 服务端压缩文件
         zip_file = '%s.zip' % remote_dir_base
         cmd = f"cd {remote_dir_parent} && zip -r {zip_file} {remote_dir_base}/*"
@@ -198,20 +200,25 @@ class Host(_Git, _Go, _Sed, _Docker, _Yaml, _Zip):
         self.execute('rm -f %s' % remote_file)
 
         # 解压本地压缩文件
-        os.system(f'cd {local_dir_parent} && unzip {zip_file} && cd -')
+        # os.system(f'cd {local_dir_parent} && unzip {zip_file} && cd -')
+        z = zipfile.ZipFile(local_file)
+        z.extractall(path=local_dir_parent)
 
         # 删除本地压缩文件
         os.system(f'rm -rf {local_file}')
 
     def get_dir(self, remote_dir, local_dir, zip=True):
-        self.logger.debug('download dir form %s:%s->%s' % (self.host, remote_dir, local_dir))
+        self.debug('download dir form %s:%s->%s' % (self.host, remote_dir, local_dir))
+        # 新建本地目录的上级目录
+        local_dir_parent = os.path.dirname(local_dir)
+        if not os.path.exists(local_dir_parent):
+            os.makedirs(local_dir_parent)
+
         if zip is True:
             return self.get_dir_by_zip(remote_dir, local_dir)
         if not remote_dir.startswith('/'):
             remote_dir = f'{self.sftp.getcwd()}/{remote_dir}'
 
-        if not os.path.exists(local_dir):
-            os.makedirs(local_dir)
         for file in self.sftp.listdir(remote_dir):
             local_path = os.path.join(local_dir, file)
             remote_path = os.path.join(remote_dir, file)

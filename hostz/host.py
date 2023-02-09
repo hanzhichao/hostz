@@ -208,7 +208,7 @@ class Host(_Git, _Go, _Sed, _Docker, _Yaml, _Zip):
         os.system(f'rm -rf {local_file}')
 
     def get_dir(self, remote_dir, local_dir, zip=True):
-        self.logger.debug('download dir form %s:%s->%s' % (self.host, remote_dir, local_dir))
+        self.debug('download dir form %s:%s->%s' % (self.host, remote_dir, local_dir))
         # 新建本地目录的上级目录
         local_dir_parent = os.path.dirname(local_dir)
         if not os.path.exists(local_dir_parent):
