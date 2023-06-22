@@ -2,6 +2,11 @@
 
 Easy use for operate remote host via ssh
 
+![Languate - Python](https://img.shields.io/badge/language-python-blue.svg)
+![PyPI - License](https://img.shields.io/pypi/l/hostz)
+![PyPI](https://img.shields.io/pypi/v/hostz)
+![PyPI - Downloads](https://img.shields.io/pypi/dm/hostz)
+
 ## Feature
 
 ## Install
